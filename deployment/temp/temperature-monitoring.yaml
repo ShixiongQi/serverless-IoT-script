@@ -1,0 +1,90 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: tempsensors
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/class: "kpa.autoscaling.knative.dev"
+        autoscaling.knative.dev/metric: "rps"
+        autoscaling.knative.dev/target: "150"
+    spec:
+      containers:
+        - image: docker.io/petlab/tempsensors
+
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: airconditioning
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/class: "kpa.autoscaling.knative.dev"
+        autoscaling.knative.dev/metric: "rps"
+        autoscaling.knative.dev/target: "150"
+    spec:
+      containers:
+        - image: docker.io/petlab/airconditioning
+---
+apiVersion: flows.knative.dev/v1beta1
+kind: Sequence
+metadata:
+  name: temp-sequence
+spec:
+  channelTemplate:
+    apiVersion: messaging.knative.dev/v1
+    kind: InMemoryChannel
+  steps:
+    - ref:
+        apiVersion: serving.knative.dev/v1
+        kind: Service
+        name: tempsensors
+    - ref:
+        apiVersion: serving.knative.dev/v1
+        kind: Service
+        name: airconditioning
+  reply:
+    ref:
+      kind: Broker
+      apiVersion: eventing.knative.dev/v1
+      name: default
+---
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: sequence-trigger
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: temp
+  subscriber:
+    ref:
+      apiVersion: flows.knative.dev/v1beta1
+      kind: Sequence
+      name: temp-sequence
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: sequence-display
+spec:
+  template:
+    spec:
+      containers:
+        - image: gcr.io/knative-releases/knative.dev/eventing-contrib/cmd/appender
+---
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: display-trigger
+spec:
+  broker: default
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: sequence-display
