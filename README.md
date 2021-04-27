@@ -66,13 +66,22 @@ kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/e
 ```
 kubectl get pods --namespace knative-eventing
 ```
-
-## Deploy a broker layer
+3. Install a default channel (messaging) layer:
 ```
-kubectl apply -f mosquitto.yaml
+kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/in-memory-channel.yaml
+```
+4. Install a broker layer:
+```
+kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/mt-channel-broker.yaml
 ```
 
 ## Deploy IoT service chains
+```
+kubectl apply -f deployment/mt_broker.yaml
+kubectl apply -f deployment/event_source.yaml
+kubectl apply -f deployment/temp/
+```
+
 ### Scenario 1: 
 ### Scenario 2: 
  
