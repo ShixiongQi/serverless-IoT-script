@@ -10,7 +10,7 @@ spec:
           name: heartbeats
           env:
             - name: K_SINK
-              value: http://broker-ingress.knative-eventing.svc.cluster.local/default/default 
+              value: http://broker-ingress.knative-eventing.svc.cluster.local/default/default
   sink:
     ref:
       apiVersion: eventing.knative.dev/v1
