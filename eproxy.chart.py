@@ -3,7 +3,7 @@
 
 from bases.FrameworkServices.SimpleService import SimpleService
 # Dependencies for ebpf
-from bcc import BPF
+# from bcc import BPF
 # import pyroute2
 # import time
 # import sys
@@ -20,50 +20,50 @@ def usage():
 
 priority = 1
 
-ORDER = [
-    'RequestCount',
-    'ReponseTime'
-]
+# ORDER = [
+#     'RequestCount',
+#     'ReponseTime'
+# ]
 
-CHARTS = {
-    'RequestCount': {
-        'options': [None, 'The number of request', '', 'Request Count', 'xxx', 'line'],
-        'lines': [
-            # ['random1']
-        ]
-    },
-    'ReponseTime': {
-        'options': [None, 'response latency', '', 'Reponse Time', 'yyy', 'line'],
-        'lines': [
-            # ['random1']
-        ]
-    }
-}
+# CHARTS = {
+#     'RequestCount': {
+#         'options': [None, 'The number of request', '', 'Request Count', 'xxx', 'line'],
+#         'lines': [
+#             # ['random1']
+#         ]
+#     },
+#     'ReponseTime': {
+#         'options': [None, 'response latency', '', 'Reponse Time', 'yyy', 'line'],
+#         'lines': [
+#             # ['random1']
+#         ]
+#     }
+# }
 
 # bpf_text = """
 # #include <uapi/linux/bpf.h>
 # BPF_TABLE(percpu_array, uint32_t, long, metrics_map, 256);
 # """
 
-ret = "XDP_DROP"
-ctxtype = "xdp_md"
-offload_device = None
-maptype = "percpu_array"
-# load BPF program
-b = BPF(text = """
-#include <uapi/linux/bpf.h>
-BPF_TABLE(MAPTYPE, uint32_t, long, metrics_map, 256);
-int xdp_prog1(struct CTXTYPE *ctx) {
-    // drop packets
-    int rc = RETURNCODE; // let pass XDP_PASS or redirect to tx via XDP_TX
-    long *value;
-    uint32_t index = 0;
-    value = metrics_map.lookup(&index);
-    if (value)
-        __sync_fetch_and_add(value, 1);
-    return rc;
-}
-""", cflags=["-w", "-DRETURNCODE=%s" % ret, "-DCTXTYPE=%s" % ctxtype, "-DMAPTYPE=\"%s\"" % maptype], device=offload_device)
+# ret = "XDP_DROP"
+# ctxtype = "xdp_md"
+# offload_device = None
+# maptype = "percpu_array"
+# # load BPF program
+# b = BPF(text = """
+# #include <uapi/linux/bpf.h>
+# BPF_TABLE(MAPTYPE, uint32_t, long, metrics_map, 256);
+# int xdp_prog1(struct CTXTYPE *ctx) {
+#     // drop packets
+#     int rc = RETURNCODE; // let pass XDP_PASS or redirect to tx via XDP_TX
+#     long *value;
+#     uint32_t index = 0;
+#     value = metrics_map.lookup(&index);
+#     if (value)
+#         __sync_fetch_and_add(value, 1);
+#     return rc;
+# }
+# """, cflags=["-w", "-DRETURNCODE=%s" % ret, "-DCTXTYPE=%s" % ctxtype, "-DMAPTYPE=\"%s\"" % maptype], device=offload_device)
 
 class Service(SimpleService):
     def __init__(self, configuration=None, name=None):
@@ -74,8 +74,8 @@ class Service(SimpleService):
         # load bpf program
         # self.b = BPF(src_file="eproxy_monitor.c", cflags=["-w", "-DRETURNCODE=%s" % ret, "-DCTXTYPE=%s" % ctxtype, "-DMAPTYPE=\"%s\"" % maptype], device=offload_device)
         # self.b = BPF(text = bpf_text)
-        self.metrics_map = b.get_table("metrics_map")
-        self.prev = [0] * 256
+        # self.metrics_map = b.get_table("metrics_map")
+        # self.prev = [0] * 256
 
 
     @staticmethod
@@ -84,14 +84,14 @@ class Service(SimpleService):
 
     def get_data(self):
         data = dict()
-        print("Get eBPF map data")
-        delta = 0
-        for k in self.metrics_map.keys():
-            val = self.metrics_map[k].value if maptype == "array" else self.metrics_map.sum(k).value
-            i = k.value
-            if val:
-                delta = val - self.prev[i]
-                self.prev[i] = val
+        # print("Get eBPF map data")
+        delta = 10
+        # for k in self.metrics_map.keys():
+        #     val = self.metrics_map[k].value if maptype == "array" else self.metrics_map.sum(k).value
+        #     i = k.value
+        #     if val:
+        #         delta = val - self.prev[i]
+        #         self.prev[i] = val
                 # print("{}: {} pkt/s".format(i, delta))
         # Get the Pod IP
         # IP_list = []
