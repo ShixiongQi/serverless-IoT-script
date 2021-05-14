@@ -20,25 +20,25 @@ def usage():
 
 priority = 1
 
-# ORDER = [
-#     'RequestCount',
-#     'ReponseTime'
-# ]
+ORDER = [
+    'RequestCount',
+    'ReponseTime'
+]
 
-# CHARTS = {
-#     'RequestCount': {
-#         'options': [None, 'The number of request', '', 'Request Count', 'xxx', 'line'],
-#         'lines': [
-#             # ['random1']
-#         ]
-#     },
-#     'ReponseTime': {
-#         'options': [None, 'response latency', '', 'Reponse Time', 'yyy', 'line'],
-#         'lines': [
-#             # ['random1']
-#         ]
-#     }
-# }
+CHARTS = {
+    'RequestCount': {
+        'options': [None, 'The number of request', '', 'Request Count', 'xxx', 'line'],
+        'lines': [
+            # ['random1']
+        ]
+    },
+    'ReponseTime': {
+        'options': [None, 'response latency', '', 'Reponse Time', 'yyy', 'line'],
+        'lines': [
+            # ['random1']
+        ]
+    }
+}
 
 # bpf_text = """
 # #include <uapi/linux/bpf.h>
