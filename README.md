@@ -82,6 +82,40 @@ kubectl apply -f deployment/event_source.yaml
 kubectl apply -f deployment/temp/
 ```
 
-### Scenario 1: 
-### Scenario 2: 
+## Metrics to be collected
+1. The metrics we are collecting do not provide enough information to help the control plane to make the decision. 
+```
+struct metrics_record {
+      _u64 appRequestCountM;
+      _u64 appResponseTimeInMsecM;
+} __attributed__((packed));
+```
+* The metrics collected by eproxy:
+        * *appRequestCountM*: The number of requests that are routed to user-container
+        * *appResponseTimeInMsecM*: The response time in millisecond
+* The metrics collected by other components
+        * *requestCountM*: The number of requests that are routed to queue-proxy
+        * *responseTimeInMsecM*: The response time in millisecond
+        * *queueDepthM*: The current number of items in the serving and waiting queue, or not reported if unlimited concurrency (Collected by where the buffer locates)
+
+## Deploy the netdata
+1. Run `bash <(curl -Ss https://my-netdata.io/kickstart.sh)`, wait until the installation completes.
+2. Install the EPROXY program
+	1. Run `cp eproxy.chart.py /usr/libexec/netdata/python.d/eproxy.chart.py`
+3. Restart netdate service
+	1. Run `systemctl restart netdata`
+4. Scraping the metrics remotely
+	1. `curl 'http://128.110.154.174:19999/api/v1/data?chart=eproxy.RequestCount&after=-1'`
+	2. `curl 'http://128.110.154.174:19999/api/v1/data?chart=eproxy.ReponseTime&after=-1'`
+	The output will be like
+```
+{
+ "labels": ["time", "random1", "random0", "random2", "random3"],
+    "data":
+ [
+      [ 1620602324, 38, 59, 86, 88]
+  ]
+}
+```
+
  
