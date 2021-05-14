@@ -53,13 +53,11 @@ maptype = "percpu_array"
 b = BPF(text = """
 #include <uapi/linux/bpf.h>
 BPF_TABLE(MAPTYPE, uint32_t, long, metrics_map, 256);
-
 int xdp_prog1(struct CTXTYPE *ctx) {
     // drop packets
     int rc = RETURNCODE; // let pass XDP_PASS or redirect to tx via XDP_TX
     long *value;
     uint32_t index = 0;
-
     value = metrics_map.lookup(&index);
     if (value)
         __sync_fetch_and_add(value, 1);
