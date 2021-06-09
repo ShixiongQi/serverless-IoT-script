@@ -22,15 +22,17 @@ Then run `export MYMOUNT=<mount point>` with the added storage mount point name
 sudo chown -R $(id -u):$(id -g) /mydata
 cd /mydata
 git clone https://github.com/ShixiongQi/serverless-IoT.git
-cd /mydata/serverless-IoT
+cd /mydata/serverless-IoT/environment_setup/
 export MYMOUNT=/mydata
 ```
 
 ## Deploy Kubernetes Cluster
 1. Run `./docker_install.sh` without *sudo* on both *master* node and *worker* node
 2. Run `source ~/.bashrc`
-3. On *master* node, run `./k8s_insatll.sh master <master node IP address>`
-4. On *worker* node, run `./k8s_install.sh slave` and then use the `kubeadm join ...` command obtained at the end of the previous step run in the master node to join the k8s cluster. Run the `kubeadm join` command with *sudo*
+3. Run `./git_clone.sh` to clone all relevant repos. Edit as required before moving on.
+4. On *master* node, run `./k8s_insatll.sh master <master node IP address>`
+5. On *worker* node, run `./k8s_install.sh slave` and then use the `kubeadm join ...` command obtained at the end of the previous step run in the master node to join the k8s cluster. Run the `kubeadm join` command with *sudo*
+6. On master node, run `./prerequisite.sh` (Currently not needed)
 
 ## Deploy Knative Serving
 1. Install the required custom resources and the core components of Serving:
@@ -55,6 +57,15 @@ kubectl get pods --namespace knative-serving
 ```
 kubectl apply -f https://github.com/knative/serving/releases/download/v0.22.0/serving-default-domain.yaml
 ```
+
+## Customize Knative Serving
+1. If you haven't done the above steps, please complete them before moving to step 2.
+2. On master node, run `./ko_install.sh`. Please source ~/.bashrc after you run the script.
+3. On master node, run `./go_dep_install.sh` 
+4. On master node, run `sudo docker login` to login to your dockerhub account 
+5. On master node, run `./build_knative_serving_without_istio.sh` to build and install knative
+
+To uninstall, run `ko delete -f $GOPATH/src/knative.dev/serving/config/`
 
 ## Deploy Knative Eventing
 1. Install the required CRDs and the core components of Eventing:
@@ -81,7 +92,3 @@ kubectl apply -f deployment/mt_broker.yaml
 kubectl apply -f deployment/event_source.yaml
 kubectl apply -f deployment/temp/
 ```
-
-### Scenario 1: 
-### Scenario 2: 
- 
