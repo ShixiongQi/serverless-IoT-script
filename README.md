@@ -58,7 +58,7 @@ kubectl get pods --namespace knative-serving
 kubectl apply -f https://github.com/knative/serving/releases/download/v0.22.0/serving-default-domain.yaml
 ```
 
-## Customize Knative Serving
+## Customize Knative Serving (Please skip this step)
 1. If you haven't done the above steps, please complete them before moving to step 2.
 2. On master node, run `./ko_install.sh`. Please source ~/.bashrc after you run the script.
 3. On master node, run `./go_dep_install.sh` 
@@ -86,9 +86,35 @@ kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/i
 kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/mt-channel-broker.yaml
 ```
 
-## Deploy IoT service chains
+## Deploy camel-k source
+As camel-k source is no longer supported by the community, Kamel is recommended as a replacement of camel-k source.
+The way to install Kamel: https://camel.apache.org/camel-k/latest/installation/installation.html
+You can also try the commands below, which I used to set up my environment:
 ```
-kubectl apply -f deployment/mt_broker.yaml
-kubectl apply -f deployment/event_source.yaml
-kubectl apply -f deployment/temp/
+wget https://github.com/apache/camel-k/releases/download/v1.5.0/camel-k-client-1.5.0-linux-64bit.tar.gz
+tar -zxvf camel-k-client-1.5.0-linux-64bit.tar.gz
+cd camel-k-client/
+sudo install kamel /usr/bin/
+sudo -s
+kamel install --cluster-setup --registry=docker.io/shixiongqi/ # Replace with your own docker registry
+exit
+```
+
+## Deploy IoT services
+```
+cd serverless-IoT-script/
+# Deploy the mosquitto broker
+kubectl apply -f ./nas21/mosquitto.yaml
+# Deploy the helloworld-go service (Kubernetes Service)
+kubectl apply -f ./nas21/ksvc_helloworld.yaml
+# Deploy the trigger
+kubectl apply -f ./nas21/ksvc_trigger.yaml
+```
+
+## Run the motion event generator
+```
+# download the dataset and install required python package
+# I hardcoded the mosquitto address into the generator.py
+# But you can change it through the input flags
+python3 generator.py
 ```
