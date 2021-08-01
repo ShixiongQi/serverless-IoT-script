@@ -1,0 +1,29 @@
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: motion-processor
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: motion
+  subscriber:
+    ref:
+     apiVersion: v1
+     kind: Service
+     name: helloworld-go
+# -------
+# apiVersion: eventing.knative.dev/v1
+# kind: Trigger
+# metadata:
+#   name: sequence-trigger
+# spec:
+#   broker: default
+#   filter:
+#     attributes:
+#       type: temp
+#   subscriber:
+#     ref:
+#       apiVersion: flows.knative.dev/v1beta1
+#       kind: Sequence
+#       name: temp-sequence

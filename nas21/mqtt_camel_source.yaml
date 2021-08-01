@@ -1,0 +1,44 @@
+# apiVersion: camel.apache.org/v1alpha1
+# kind: KameletBinding
+# metadata:
+#   name: mqtt-source-binding
+# spec:
+#   source:
+#     ref:
+#       kind: Kamelet
+#       apiVersion: camel.apache.org/v1alpha1
+#       name: mqtt-source
+#     properties:
+#       brokerUrl: "tcp://10.104.156.92:1883"
+#       topic: "motion"
+#   sink:
+#     ref:
+#       kind: Broker
+#       apiVersion: eventing.knative.dev/v1
+#       name: default
+
+apiVersion: sources.knative.dev/v1alpha1
+kind: CamelSource
+metadata:
+  name: camel-mqtt-source
+spec:
+  source:
+    integration:
+     replicas: 1
+    flow:
+      from:
+        uri: paho:motion
+        parameters:
+          brokerUrl: tcp://mosquitto:1883
+          clientId: mqtt-knative-bridge
+        steps:
+          - set-header:
+              name: ce-type
+              constant: mqtt
+          - log:
+              message: "Forwarding: ${body}"
+  sink:
+    ref:
+      apiVersion: eventing.knative.dev/v1
+      kind: Broker
+      name: default
