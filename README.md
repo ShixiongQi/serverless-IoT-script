@@ -21,8 +21,8 @@ Then run `export MYMOUNT=<mount point>` with the added storage mount point name
 ```
 sudo chown -R $(id -u):$(id -g) /mydata
 cd /mydata
-git clone https://github.com/ShixiongQi/serverless-IoT.git
-cd /mydata/serverless-IoT/environment_setup/
+git clone https://github.com/ShixiongQi/serverless-IoT-script.git
+cd /mydata/serverless-IoT-script/environment_setup/
 export MYMOUNT=/mydata
 ```
 
