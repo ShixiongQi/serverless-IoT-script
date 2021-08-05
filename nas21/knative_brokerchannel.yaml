@@ -1,7 +1,7 @@
 apiVersion: samples.knative.dev/v1alpha1
 kind: BrokerChannel
 metadata:
-  name: test-motion
+  name: knative-svc-motion
   namespace: default
 spec:
   brokeraddr: 10.244.1.61
