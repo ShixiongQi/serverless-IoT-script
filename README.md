@@ -100,6 +100,16 @@ kamel install --cluster-setup --registry=docker.io/shixiongqi/ # Replace with yo
 exit
 ```
 
+## Deploy brokerchannel (adapter)
+```
+git submodule sync
+git submodule update --init
+
+# Install ko
+
+ko apply -f config/
+```
+
 ## Deploy IoT services
 ```
 cd serverless-IoT-script/
