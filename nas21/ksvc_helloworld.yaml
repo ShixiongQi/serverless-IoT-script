@@ -3,7 +3,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: helloworld-go
-  # namespace: knative-samples
 spec:
   replicas: 1
   selector:
@@ -24,7 +23,6 @@ kind: Service
 apiVersion: v1
 metadata:
   name: helloworld-go
-  # namespace: knative-samples
 spec:
   selector:
     app: helloworld-go
