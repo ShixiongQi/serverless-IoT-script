@@ -1,0 +1,17 @@
+apiVersion: samples.knative.dev/v1alpha1
+kind: BrokerChannel
+metadata:
+  name: test-motion
+  namespace: default
+spec:
+  brokeraddr: 10.244.1.61
+  brokerport: 1883
+  topic: motion
+  sink:
+    ref:
+      apiVersion: v1
+      kind: Service
+      name: helloworld-go
+      # apiVersion: messaging.knative.dev/v1 #messaging.knative.dev/v1
+      # kind: InMemoryChannel
+      # name: camel-test
