@@ -77,16 +77,16 @@ kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/e
 ```
 kubectl get pods --namespace knative-eventing
 ```
-3. Install a default channel (messaging) layer:
+3. Install a default channel (messaging) layer: <span style="color:red">(Deprecated)</span>.
 ```
 kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/in-memory-channel.yaml
 ```
-4. Install a broker layer:
+4. Install a broker layer: <span style="color:red">(Deprecated)</span>
 ```
 kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/mt-channel-broker.yaml
 ```
 
-## Deploy camel-k source
+## Deploy camel-k source <span style="color:red">(Deprecated)</span>
 As camel-k source is no longer supported by the community, Kamel is recommended as a replacement of camel-k source.
 The way to install Kamel: https://camel.apache.org/camel-k/latest/installation/installation.html
 You can also try the commands below, which I used to set up my environment:
@@ -105,10 +105,10 @@ exit
 cd serverless-IoT-script/
 # Deploy the mosquitto broker
 kubectl apply -f ./nas21/mosquitto.yaml
+# Deploy the brokerchannel (MQTT-to-HTTP Adapter) --- <span style="color:red">Before deploying, configure the IP address of mosquitto broker</span>
+kubectl apply -f ksvc_brokerchannel.yaml
 # Deploy the helloworld-go service (Kubernetes Service)
 kubectl apply -f ./nas21/ksvc_helloworld.yaml
-# Deploy the trigger
-kubectl apply -f ./nas21/ksvc_trigger.yaml
 ```
 
 ## Run the motion event generator
@@ -116,5 +116,5 @@ kubectl apply -f ./nas21/ksvc_trigger.yaml
 # download the dataset and install required python package
 # I hardcoded the mosquitto address into the generator.py
 # But you can change it through the input flags
-python3 generator.py
+python3 generator.py -f $MOSQUITTO_IP
 ```
