@@ -13,7 +13,7 @@ base = 14
 def generate(path, speed, addr, port):
     s, e = [], []
     begin = None
-    def on_connect(mqttc, userdata, flags, rc):
+    def on_connect(mqttc, userdata, flags, rc, properties):
         print("Connected with result code ", rc)
         if rc == 0:
             print("Connected to MQTT Broker!")
@@ -21,8 +21,8 @@ def generate(path, speed, addr, port):
             print("Reconnected to MQTT Broker")
             mqttc.reconnect()
 
-    # mqtt_client = client.Client(protocol=client.MQTTv5)
-    mqtt_client = client.Client()
+    mqtt_client = client.Client(protocol=client.MQTTv5)
+    # mqtt_client = client.Client()
     mqtt_client.on_connect = on_connect
     mqtt_client.connect(addr, port=port)
     print('Try to on_connect')
@@ -75,7 +75,7 @@ def generate(path, speed, addr, port):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-a', '--addr', action='store', type=str, default='10.104.156.92')
+    parser.add_argument('-a', '--addr', action='store', type=str, default='10.244.1.61')
     parser.add_argument('-p', '--port', action='store', type=int, default=1883)
     parser.add_argument('-n', '--number', action='store', type=int)
     parser.add_argument('-s', '--speed', action='store', type=int, default=1)
