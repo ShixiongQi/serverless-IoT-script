@@ -106,7 +106,11 @@ git submodule sync
 git submodule update --init
 
 # Install ko
+cd ~/ && wget https://github.com/google/ko/releases/download/v0.8.3/ko_0.8.3_Linux_x86_64.tar.gz
+tar -zxvf ko_0.8.3_Linux_x86_64.tar.gz
+sudo install ko /usr/bin/
 
+# deploy brokerchannel
 ko apply -f config/
 ```
 
@@ -115,15 +119,28 @@ ko apply -f config/
 cd serverless-IoT-script/
 # Deploy the mosquitto broker
 kubectl apply -f ./nas21/mosquitto.yaml
-# Deploy the brokerchannel (MQTT-to-HTTP Adapter) --- <span style="color:red">Before deploying, configure the IP address of mosquitto broker</span>
+
+# Deploy the brokerchannel (MQTT-to-HTTP Adapter) 
+# NOTE: Before deploying, configure the IP address of mosquitto broker
+MOSQUITTO_IP=$(kubectl get pods -l app=mosquitto -o jsonpath='{.items[0].status.podIP}')
+sed -i 's#10.244.1.61#'$MOSQUITTO_IP'#g' ksvc_brokerchannel.yaml
 kubectl apply -f ksvc_brokerchannel.yaml
+
 # Deploy the helloworld-go service (Kubernetes Service)
 kubectl apply -f ./nas21/ksvc_helloworld.yaml
+
+# Deploy the helloworld-go service (Knative Service)
+kubectl apply -f ./nas21/knative_helloworld.yaml
 ```
 
 ## Run the motion event generator
 ```
+# NOTE: assume using python3.6.9
 # download the dataset and install required python package
+sudo apt update
+sudo apt install python3-pip
+pip3 install paho-mqtt
+
 # I hardcoded the mosquitto address into the generator.py
 # But you can change it through the input flags
 python3 generator.py -f $MOSQUITTO_IP
