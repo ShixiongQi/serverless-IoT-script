@@ -1,4 +1,4 @@
-## Starting up a 2-node cluster on Cloudlab 
+## I. Starting up a 2-node cluster on Cloudlab 
 1. When starting a new experiment on Cloudlab, select the **small-lan** profile
 2. In the profile parameterization page, 
         - Set **Number of Nodes** as **2**
@@ -7,7 +7,7 @@
         - Please check **Temp Filesystem Max Space**
         - Keep **Temporary Filesystem Mount Point** as default (**/mydata**)
 
-## Extend the disk
+## II. Extend the disk
 On the master node and worker nodes, run
 ```bash
 sudo chown -R $(id -u):$(id -g) <mount point(to be used as extra storage)>
@@ -26,13 +26,13 @@ cd /mydata/serverless-IoT-script/environment_setup/
 export MYMOUNT=/mydata
 ```
 
-## Deploy Kubernetes Cluster
+## III. Deploy Kubernetes Cluster
 1. Run `./100-docker_install.sh` without *sudo* on both *master* node and *worker* node
 2. Run `source ~/.bashrc`
 3. On *master* node, run `./200-k8s_install.sh master <master node IP address>`
 4. On *worker* node, run `./200-k8s_install.sh slave` and then use the `kubeadm join ...` command obtained at the end of the previous step run in the master node to join the k8s cluster. Run the `kubeadm join` command with *sudo*
 
-## Deploy Knative Serving and Eventing
+## IV. Deploy Knative Serving and Eventing
 ### Quick installation (Recommended)
 ```
 ./300-knative_install.sh
@@ -72,7 +72,7 @@ kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/e
 kubectl get pods --namespace knative-eventing
 ```
 
-## Deploy broker layer (brokerchannel/adapter and mosquitto broker)
+## V. Deploy broker layer (brokerchannel/adapter and mosquitto broker)
 ### Quick installation (Recommended)
 ```
 ./400-brokerlayer_install.sh
@@ -114,7 +114,7 @@ cd ../
 kubectl apply -f ./nas21/mosquitto.yaml
 ```
 
-## Setup event generator
+## VI. Setup event generator
 ### Quick setup (Recommended)
 ```
 ./500-event_generator_setup.sh
@@ -134,7 +134,7 @@ sudo apt install -y python3-pip
 pip3 install paho-mqtt
 ```
 
-## Deploy IoT services (manually)
+## VII. Deploy IoT services (manually)
 Go to `nas21` directory before moving forward
 ### Deploy the brokerchannel (MQTT-to-HTTP Adapter)
 ```
@@ -170,13 +170,13 @@ kubectl delete -f ksvc_helloworld.yaml
 kubectl delete -f ksvc_brokerchannel.yaml
 ```
 
-## Run the motion event generator
+## VIII. Run the motion event generator
 ```
 # I hardcoded the mosquitto address into the generator.py
 # But you can change it through the input flags
 python3 generator.py -a $MOSQUITTO_IP
 ```
-## Verify whether the service instance receives the messages
+## IX. Verify whether the service instance receives the messages
 If you are running **Kubernetes service**, please run
 ```
 kubectl logs -l app=helloworld-go
