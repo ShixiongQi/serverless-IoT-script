@@ -44,6 +44,6 @@ GOPATH=$mount_path/go
 echo "export GOROOT=/usr/local/go" >> ~/.bashrc
 echo "export GOPATH=$mount_path/go" >>  ~/.bashrc
 echo "export PATH=$PATH:$GOROOT/bin:$GOPATH/bin"  >>  ~/.bashrc
-
+rm -r download/
 source ~/.bashrc
 echo "please source ~/.bashrc"
