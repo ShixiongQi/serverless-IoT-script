@@ -1,0 +1,32 @@
+# Helloworld-go app deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld-go
+spec:
+  replicas: 1
+  selector:
+    matchLabels: &labels
+      app: helloworld-go
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      containers:
+        - name: helloworld-go
+          image: gcr.io/knative-samples/helloworld-go
+
+---
+# Service that exposes helloworld-go app.
+# This will be the subscriber for the Trigger
+kind: Service
+apiVersion: v1
+metadata:
+  name: helloworld-go
+spec:
+  selector:
+    app: helloworld-go
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

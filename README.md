@@ -12,8 +12,8 @@ On the master node and worker nodes, run
 ```bash
 sudo chown -R $(id -u):$(id -g) <mount point(to be used as extra storage)>
 cd <mount point>
-git clone https://github.com/ShixiongQi/serverless-IoT.git
-cd <mount point>/serverless-IoT
+git clone https://github.com/ShixiongQi/serverless-IoT-script.git
+cd <mount point>/serverless-IoT-script
 ```
 Then run `export MYMOUNT=<mount point>` with the added storage mount point name
 
@@ -58,7 +58,7 @@ kubectl get pods --namespace knative-serving
 kubectl apply -f https://github.com/knative/serving/releases/download/v0.22.0/serving-default-domain.yaml
 ```
 
-## Customize Knative Serving
+## Customize Knative Serving (Please skip this step)
 1. If you haven't done the above steps, please complete them before moving to step 2.
 2. On master node, run `./ko_install.sh`. Please source ~/.bashrc after you run the script.
 3. On master node, run `./go_dep_install.sh` 
@@ -77,18 +77,71 @@ kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/e
 ```
 kubectl get pods --namespace knative-eventing
 ```
-3. Install a default channel (messaging) layer:
+3. Install a default channel (messaging) layer: <span style="color:red">(Deprecated)</span>.
 ```
 kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/in-memory-channel.yaml
 ```
-4. Install a broker layer:
+4. Install a broker layer: <span style="color:red">(Deprecated)</span>
 ```
 kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/mt-channel-broker.yaml
 ```
 
-## Deploy IoT service chains
+## Deploy camel-k source <span style="color:red">(Deprecated)</span>
+As camel-k source is no longer supported by the community, Kamel is recommended as a replacement of camel-k source.
+The way to install Kamel: https://camel.apache.org/camel-k/latest/installation/installation.html
+You can also try the commands below, which I used to set up my environment:
 ```
-kubectl apply -f deployment/mt_broker.yaml
-kubectl apply -f deployment/event_source.yaml
-kubectl apply -f deployment/temp/
+wget https://github.com/apache/camel-k/releases/download/v1.5.0/camel-k-client-1.5.0-linux-64bit.tar.gz
+tar -zxvf camel-k-client-1.5.0-linux-64bit.tar.gz
+cd camel-k-client/
+sudo install kamel /usr/bin/
+sudo -s
+kamel install --cluster-setup --registry=docker.io/shixiongqi/ # Replace with your own docker registry
+exit
+```
+
+## Deploy brokerchannel (adapter)
+```
+git submodule sync
+git submodule update --init
+
+# Install ko
+cd ~/ && wget https://github.com/google/ko/releases/download/v0.8.3/ko_0.8.3_Linux_x86_64.tar.gz
+tar -zxvf ko_0.8.3_Linux_x86_64.tar.gz
+sudo install ko /usr/bin/
+
+# deploy brokerchannel
+ko apply -f config/
+```
+
+## Deploy IoT services
+```
+cd serverless-IoT-script/
+# Deploy the mosquitto broker
+kubectl apply -f ./nas21/mosquitto.yaml
+
+# Deploy the brokerchannel (MQTT-to-HTTP Adapter) 
+# NOTE: Before deploying, configure the IP address of mosquitto broker
+MOSQUITTO_IP=$(kubectl get pods -l app=mosquitto -o jsonpath='{.items[0].status.podIP}')
+sed -i 's#10.244.1.61#'$MOSQUITTO_IP'#g' ksvc_brokerchannel.yaml
+kubectl apply -f ksvc_brokerchannel.yaml
+
+# Deploy the helloworld-go service (Kubernetes Service)
+kubectl apply -f ./nas21/ksvc_helloworld.yaml
+
+# Deploy the helloworld-go service (Knative Service)
+kubectl apply -f ./nas21/knative_helloworld.yaml
+```
+
+## Run the motion event generator
+```
+# NOTE: assume using python3.6.9
+# download the dataset and install required python package
+sudo apt update
+sudo apt install python3-pip
+pip3 install paho-mqtt
+
+# I hardcoded the mosquitto address into the generator.py
+# But you can change it through the input flags
+python3 generator.py -f $MOSQUITTO_IP
 ```
