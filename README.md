@@ -35,7 +35,7 @@ export MYMOUNT=/mydata
 6. On master node, run `./prerequisite.sh` (Currently not needed)
 
 ## Deploy Knative Serving and Eventing
-### Quick installation (Recommanded)
+### Quick installation (Recommended)
 ```
 ./300-knative_install.sh
 ```
@@ -75,7 +75,7 @@ kubectl get pods --namespace knative-eventing
 ```
 
 ## Deploy broker layer (brokerchannel/adapter and mosquitto broker)
-### Quick installation (Recommanded)
+### Quick installation (Recommended)
 ```
 ./400-brokerlayer_install.sh
 ```
@@ -117,7 +117,7 @@ kubectl apply -f ./nas21/mosquitto.yaml
 ```
 
 ## Setup event generator
-### Quick setup (Recommanded)
+### Quick setup (Recommended)
 ```
 ./500-event_generator_setup.sh
 ```
@@ -163,3 +163,26 @@ kubectl apply -f ./nas21/knative_helloworld.yaml
 # But you can change it through the input flags
 python3 generator.py -a $MOSQUITTO_IP
 ```
+## Verify whether the service instance receives the messages
+If you are running **Kubernetes service**, please run
+```
+kubectl logs -l app=helloworld-go
+```
+
+If you are running **Knative service**, please get the pod name first. You can run
+```
+kubectl get pods
+```
+The output will be like
+```
+sqi009@node0:/mydata/serverless-IoT-script$ kubectl get pods
+NAME                                             READY   STATUS    RESTARTS   AGE
+helloworld-go-00001-deployment-6584fd8bd-2qdmt   2/2     Running   0          3m20s
+mosquitto-5586d6587c-5pnnr                       1/1     Running   0          156m
+```
+**NOTE: Knative support zero-scaling. Please make sure you started the event generator. Otherwise, you may not find the active pod.**
+The pod name is in the format of `helloworld-go-00001-deployment-xxxx-xxx`. Use it to replace the `POD_NAME` in the command below.
+```
+kubectl logs $POD_NAME -c user-container
+```
+You can find the message recived info' in the print out.

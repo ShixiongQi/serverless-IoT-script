@@ -81,8 +81,6 @@ def main():
     parser.add_argument('-s', '--speed', action='store', type=int, default=1)
     args = parser.parse_args()
 
-    generate(prefix+'14.txt', args.speed, args.addr, args.port)
-    '''
     if args.number:
         if args.number > 7:
             parser.error('Must be less than 7')
@@ -96,6 +94,6 @@ def main():
                 th.join()
     else:
         generate(prefix+'14.txt', args.speed, args.addr, args.port)
-    '''                  
+               
 if __name__  ==  '__main__':
     main()
