@@ -27,14 +27,20 @@ export MYMOUNT=/mydata
 ```
 
 ## Deploy Kubernetes Cluster
-1. Run `./docker_install.sh` without *sudo* on both *master* node and *worker* node
+1. Run `./100-docker_install.sh` without *sudo* on both *master* node and *worker* node
 2. Run `source ~/.bashrc`
 3. Run `./git_clone.sh` to clone all relevant repos. Edit as required before moving on.
-4. On *master* node, run `./k8s_insatll.sh master <master node IP address>`
-5. On *worker* node, run `./k8s_install.sh slave` and then use the `kubeadm join ...` command obtained at the end of the previous step run in the master node to join the k8s cluster. Run the `kubeadm join` command with *sudo*
+4. On *master* node, run `./200-k8s_install.sh master <master node IP address>`
+5. On *worker* node, run `./200-k8s_install.sh slave` and then use the `kubeadm join ...` command obtained at the end of the previous step run in the master node to join the k8s cluster. Run the `kubeadm join` command with *sudo*
 6. On master node, run `./prerequisite.sh` (Currently not needed)
 
-## Deploy Knative Serving
+## Deploy Knative Serving and Eventing
+### Quick installation (Recommanded)
+```
+./300-knative_install.sh
+```
+### Manual installation
+#### Serving installation
 1. Install the required custom resources and the core components of Serving:
 ```
 kubectl apply -f https://github.com/knative/serving/releases/download/v0.22.0/serving-crds.yaml
@@ -57,17 +63,7 @@ kubectl get pods --namespace knative-serving
 ```
 kubectl apply -f https://github.com/knative/serving/releases/download/v0.22.0/serving-default-domain.yaml
 ```
-
-## Customize Knative Serving (Please skip this step)
-1. If you haven't done the above steps, please complete them before moving to step 2.
-2. On master node, run `./ko_install.sh`. Please source ~/.bashrc after you run the script.
-3. On master node, run `./go_dep_install.sh` 
-4. On master node, run `sudo docker login` to login to your dockerhub account 
-5. On master node, run `./build_knative_serving_without_istio.sh` to build and install knative
-
-To uninstall, run `ko delete -f $GOPATH/src/knative.dev/serving/config/`
-
-## Deploy Knative Eventing
+#### Eventing installation
 1. Install the required CRDs and the core components of Eventing:
 ```
 kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/eventing-crds.yaml
@@ -77,30 +73,28 @@ kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/e
 ```
 kubectl get pods --namespace knative-eventing
 ```
-3. Install a default channel (messaging) layer: <span style="color:red">(Deprecated)</span>.
-```
-kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/in-memory-channel.yaml
-```
-4. Install a broker layer: <span style="color:red">(Deprecated)</span>
-```
-kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/mt-channel-broker.yaml
-```
 
-## Deploy camel-k source <span style="color:red">(Deprecated)</span>
-As camel-k source is no longer supported by the community, Kamel is recommended as a replacement of camel-k source.
-The way to install Kamel: https://camel.apache.org/camel-k/latest/installation/installation.html
-You can also try the commands below, which I used to set up my environment:
+## Deploy broker layer (brokerchannel/adapter and mosquitto broker)
+### Quick installation (Recommanded)
 ```
-wget https://github.com/apache/camel-k/releases/download/v1.5.0/camel-k-client-1.5.0-linux-64bit.tar.gz
-tar -zxvf camel-k-client-1.5.0-linux-64bit.tar.gz
-cd camel-k-client/
-sudo install kamel /usr/bin/
-sudo -s
-kamel install --cluster-setup --registry=docker.io/shixiongqi/ # Replace with your own docker registry
-exit
+./400-brokerlayer_install.sh
 ```
+### Manual installation (User only)
+If you are a user only, please follow the steps below to install broker layer manually.
+```
+git submodule sync
+git submodule update --init
 
-## Deploy brokerchannel (adapter)
+# deploy brokerchannel service
+cd ../brokerchannel/
+kubectl apply -f config/
+
+# Deploy the mosquitto broker
+cd ../
+kubectl apply -f ./nas21/mosquitto.yaml
+```
+### Manual installation (for developer)
+If you changed the brokerchannel implementation and want to rebuild it, please make sure you can install `ko` and properly configure it, i.e., KO_DOCKER_REPO
 ```
 git submodule sync
 git submodule update --init
@@ -110,38 +104,62 @@ cd ~/ && wget https://github.com/google/ko/releases/download/v0.8.3/ko_0.8.3_Lin
 tar -zxvf ko_0.8.3_Linux_x86_64.tar.gz
 sudo install ko /usr/bin/
 
-# deploy brokerchannel
+# ASSUME YOU WILL DO SOME CHANGES ON THE BROKERCHANNEL
+# ...
+
+# deploy brokerchannel service
+cd ../brokerchannel/
 ko apply -f config/
+
+# Deploy the mosquitto broker
+cd ../
+kubectl apply -f ./nas21/mosquitto.yaml
+```
+
+## Setup event generator
+### Quick setup (Recommanded)
+```
+./500-event_generator_setup.sh
+```
+### Manual setup
+```
+# Download motion dataset
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1MwJIxaokG52YQ9xkCxoT4AmZprgBoO0z' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1MwJIxaokG52YQ9xkCxoT4AmZprgBoO0z" -O motion_dataset.tar.gz && rm -rf /tmp/cookies.txt
+tar -zxvf motion_dataset.tar.gz
+mv merl/ /mydata/serverless-IoT-script/motion_gen/
+rm motion_dataset.tar.gz
+
+# NOTE: assume using python3.6.9
+# Install required python package
+sudo apt update
+sudo apt install -y python3-pip
+pip3 install paho-mqtt
 ```
 
 ## Deploy IoT services
 ```
-cd serverless-IoT-script/
-# Deploy the mosquitto broker
-kubectl apply -f ./nas21/mosquitto.yaml
-
-# Deploy the brokerchannel (MQTT-to-HTTP Adapter) 
+# Deploy the brokerchannel (MQTT-to-HTTP Adapter)
 # NOTE: Before deploying, configure the IP address of mosquitto broker
 MOSQUITTO_IP=$(kubectl get pods -l app=mosquitto -o jsonpath='{.items[0].status.podIP}')
 sed -i 's#10.244.1.61#'$MOSQUITTO_IP'#g' ksvc_brokerchannel.yaml
-kubectl apply -f ksvc_brokerchannel.yaml
+sed -i 's#10.244.1.61#'$MOSQUITTO_IP'#g' knative_brokerchannel.yaml
 
+## OPTION-1
+# Deploy brokerchannel for Kubernetes Service
+kubectl apply -f ksvc_brokerchannel.yaml
 # Deploy the helloworld-go service (Kubernetes Service)
 kubectl apply -f ./nas21/ksvc_helloworld.yaml
 
+## OPTION-2
+# Deploy brokerchannel for Knative Service
+kubectl apply -f knative_brokerchannel.yaml
 # Deploy the helloworld-go service (Knative Service)
 kubectl apply -f ./nas21/knative_helloworld.yaml
 ```
 
 ## Run the motion event generator
 ```
-# NOTE: assume using python3.6.9
-# download the dataset and install required python package
-sudo apt update
-sudo apt install python3-pip
-pip3 install paho-mqtt
-
 # I hardcoded the mosquitto address into the generator.py
 # But you can change it through the input flags
-python3 generator.py -f $MOSQUITTO_IP
+python3 generator.py -a $MOSQUITTO_IP
 ```
