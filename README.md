@@ -134,25 +134,40 @@ sudo apt install -y python3-pip
 pip3 install paho-mqtt
 ```
 
-## Deploy IoT services
+## Deploy IoT services (manually)
+Go to `nas21` directory before moving forward
+### Deploy the brokerchannel (MQTT-to-HTTP Adapter)
 ```
-# Deploy the brokerchannel (MQTT-to-HTTP Adapter)
 # NOTE: Before deploying, configure the IP address of mosquitto broker
 MOSQUITTO_IP=$(kubectl get pods -l app=mosquitto -o jsonpath='{.items[0].status.podIP}')
 sed -i 's#10.244.1.61#'$MOSQUITTO_IP'#g' ksvc_brokerchannel.yaml
 sed -i 's#10.244.1.61#'$MOSQUITTO_IP'#g' knative_brokerchannel.yaml
+```
 
+You can choose to run either Knative service or Kubernetes service for a simple helloworld application. Please run them seperately, e.g., 1st time runs Knative service, 2nd time runs Kubernetes service. Before switching between different services, please clean up the old deployment first.
+### **Knative service**
+```
 ## OPTION-1
-# Deploy brokerchannel for Kubernetes Service
-kubectl apply -f ksvc_brokerchannel.yaml
-# Deploy the helloworld-go service (Kubernetes Service)
-kubectl apply -f ./nas21/ksvc_helloworld.yaml
-
-## OPTION-2
 # Deploy brokerchannel for Knative Service
 kubectl apply -f knative_brokerchannel.yaml
 # Deploy the helloworld-go service (Knative Service)
-kubectl apply -f ./nas21/knative_helloworld.yaml
+kubectl apply -f knative_helloworld.yaml
+
+## If you want to cleanup the Knative service
+kubectl delete -f knative_helloworld.yaml
+kubectl delete -f knative_brokerchannel.yaml
+```
+### **Kubernetes service**
+```
+## OPTION-2
+# Deploy brokerchannel for Kubernetes Service
+kubectl apply -f ksvc_brokerchannel.yaml
+# Deploy the helloworld-go service (Kubernetes Service)
+kubectl apply -f ksvc_helloworld.yaml
+
+## If you want to cleanup the Kubernetes service
+kubectl delete -f ksvc_helloworld.yaml
+kubectl delete -f ksvc_brokerchannel.yaml
 ```
 
 ## Run the motion event generator
