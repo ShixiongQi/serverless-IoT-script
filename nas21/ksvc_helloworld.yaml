@@ -15,7 +15,11 @@ spec:
       containers:
         - name: helloworld-go
           image: gcr.io/knative-samples/helloworld-go
-
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m
 ---
 # Service that exposes helloworld-go app.
 # This will be the subscriber for the Trigger
