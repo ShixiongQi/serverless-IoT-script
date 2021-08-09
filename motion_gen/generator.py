@@ -31,16 +31,33 @@ def generate(path, speed, addr, port):
     print('MQTT Client Loop started')
     with open(path, 'r') as f:
         for line in f:
+            '''
             _, start_unix, stop_unix, _ = line.split()
             if begin is not None:
                s.append(int(start_unix) - begin)
             else:
                 begin = int(start_unix)
             e.append(int(stop_unix) - begin)
+            '''
+            _, start_unix, stop_unix, _ = line.split()
+            s.append(start_unix)
             # print(int(start_unix) - begin, int(stop_unix) - begin)
     print("Dataset initialization done")
+    print("Total {} records".format(len(s)))
+    print("Average records per second: {}".format(float(len(s)/1728000))) # 20 days in total
+    s.sort()
     # 2-way merge
     res = []
+    begin = int(s[0])
+    for u in s:
+        detal_t = float(int(u) - begin)/1000
+        if detal_t < 86400:
+            res.append(detal_t)
+    # for a in range(-10,10):
+    #     print(res[a])
+    # print(len(res))
+    # exit("stop")
+    '''
     ptr1, ptr2 = 0, 0
     while ptr1 < len(s) and ptr2 < len(e):
         if s[ptr1] <= e[ptr2]:
@@ -57,13 +74,14 @@ def generate(path, speed, addr, port):
     while ptr2 < len(e):
         res.append(0 if len(res) == 0 else e[ptr2] - res[-1])
         ptr2 += 1
+    '''
 
     sensor, event_type = 'm', 'motion'
     print("length of res: {}".format(len(res)))
     for r in res:
-        print(r)
-        # time.sleep(r/speed)
-        time.sleep(1)
+        # print(r)
+        time.sleep(r/speed)
+        # time.sleep(0.01)
         # Make Request
         attributes = {
                 'type': event_type,
