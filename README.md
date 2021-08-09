@@ -157,6 +157,17 @@ kubectl apply -f knative_helloworld.yaml
 kubectl delete -f knative_helloworld.yaml
 kubectl delete -f knative_brokerchannel.yaml
 ```
+### Create RPS Pod Autoscaler for Knative service
+To create rps autoscaler for Knative serivce, please use `knative_helloworld_autoscaling.yaml` instead of `knative_helloworld.yaml`.
+The following parameters in `knative_helloworld_autoscaling.yaml` can be configured
+```
+    metadata:
+      annotations:
+        autoscaling.knative.dev/metric: "rps"
+        autoscaling.knative.dev/target: "1"
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "20"
+```
 ### **Kubernetes service**
 ```
 ## OPTION-2
@@ -168,6 +179,15 @@ kubectl apply -f ksvc_helloworld.yaml
 ## If you want to cleanup the Kubernetes service
 kubectl delete -f ksvc_helloworld.yaml
 kubectl delete -f ksvc_brokerchannel.yaml
+```
+### Create Horizontal Pod Autoscaler for Kubernetes service
+Now that the Kubernetes service is running, we will create the autoscaler using kubectl autoscale. The following command will create a Horizontal Pod Autoscaler that maintains between 1 and 10 replicas of the Pods controlled by the Kubernetes deployment we created in the first step of these instructions. Roughly speaking, HPA will increase and decrease the number of replicas (via the deployment) to maintain an average CPU utilization across all Pods of 50% (since each pod requests 200 milli-cores by kubectl run), this means average CPU usage of 100 milli-cores).
+```
+kubectl autoscale deployment helloworld-go --cpu-percent=10 --min=1 --max=20
+```
+We may check the current status of autoscaler by running:
+```
+kubectl get hpa
 ```
 
 ## VIII. Run the motion event generator

@@ -1,4 +1,11 @@
 #!/bin/bash
+mount_path=$MYMOUNT
+
+if [[ $mount_path == "" ]]
+then
+	echo MYMOUNT env var not defined
+	exit 1
+fi
 
 echo 'Install Knative Serving'
 kubectl apply -f https://github.com/knative/serving/releases/download/v0.22.0/serving-crds.yaml
@@ -15,6 +22,9 @@ kubectl apply -f https://github.com/knative/serving/releases/download/v0.22.0/se
 echo 'Install the required CRDs and the core components of Eventing'
 kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/eventing-crds.yaml
 kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/eventing-core.yaml
+
+echo 'Install metrics server'
+kubectl apply -f $mount_path/serverless-IoT-script/nas21/metrics-server.yaml
 
 echo 'Verify the installation until all of the components show a STATUS of Running or Completed'
 kubectl get pods --namespace knative-serving
