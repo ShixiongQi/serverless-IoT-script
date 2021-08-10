@@ -26,6 +26,9 @@ kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/e
 echo 'Install metrics server'
 kubectl apply -f $mount_path/serverless-IoT-script/nas21/metrics-server.yaml
 
+echo 'Install HPA extension'
+kubectl apply -f https://github.com/knative/serving/releases/download/v0.22.0/serving-hpa.yaml
+
 echo 'Verify the installation until all of the components show a STATUS of Running or Completed'
 kubectl get pods --namespace knative-serving
 echo 'Verify the installation until all of the components show a STATUS of Running'

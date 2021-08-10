@@ -1,3 +1,5 @@
+[toc]
+
 ## I. Starting up a 2-node cluster on Cloudlab 
 1. When starting a new experiment on Cloudlab, select the **small-lan** profile
 2. In the profile parameterization page, 
@@ -17,7 +19,7 @@ cd <mount point>/serverless-IoT-script
 ```
 Then run `export MYMOUNT=<mount point>` with the added storage mount point name
 
-- if your **Temporary Filesystem Mount Point** is as default (**/mydata**), please run
+- if your **Temporary Filesystem Mount Point** is as default (**/mydata**), please directly run
 ```
 sudo chown -R $(id -u):$(id -g) /mydata
 cd /mydata
@@ -158,13 +160,24 @@ kubectl delete -f knative_helloworld.yaml
 kubectl delete -f knative_brokerchannel.yaml
 ```
 ### Create RPS Pod Autoscaler for Knative service
-To create rps autoscaler for Knative serivce, please use `knative_helloworld_autoscaling.yaml` instead of `knative_helloworld.yaml`.
-The following parameters in `knative_helloworld_autoscaling.yaml` can be configured
+To create rps autoscaler for Knative serivce, please use `knative_helloworld_autoscaling_rps.yaml`.
+The following parameters in `knative_helloworld_autoscaling_rps.yaml` can be configured
 ```
     metadata:
       annotations:
         autoscaling.knative.dev/metric: "rps"
         autoscaling.knative.dev/target: "1"
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "20"
+```
+### Create Horizontal Pod Autoscaler (CPU based) for Knative service
+To create horizontal autoscaler for Knative serivce, please use `knative_helloworld_autoscaling_cpu.yaml`.
+The following parameters in `knative_helloworld_autoscaling_cpu.yaml` can be configured
+```
+    metadata:
+      annotations:
+        # For an hpa.autoscaling.knative.dev class Service, the autoscaling.knative.dev/target specifies the CPU percentage target (default "80").
+        autoscaling.knative.dev/target: "10"
         autoscaling.knative.dev/minScale: "1"
         autoscaling.knative.dev/maxScale: "20"
 ```
