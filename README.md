@@ -1,5 +1,3 @@
-[toc]
-
 ## I. Starting up a 2-node cluster on Cloudlab 
 1. When starting a new experiment on Cloudlab, select the **small-lan** profile
 2. In the profile parameterization page, 
