@@ -93,6 +93,7 @@ def generate(path, speed, addr, port):
         user_property = properties.Properties(properties.PacketTypes.PUBLISH)
         user_property.UserProperty = list(attributes.items())
         mqtt_client.publish(event_type, '123', properties=user_property)
+    exit("All the events in 1st day have been sent out")
 
 def main():
     parser = argparse.ArgumentParser()

@@ -17,7 +17,8 @@ else
 fi
 
 # Run mpstat to collect CPU percentage
-mpstat_result=$(mpstat 1 1 | tail -1)
+echo 'Collect CPU usage for '${1}' seconds'
+mpstat_result=$(mpstat ${1} 1 | tail -1)
 # Setting space as spliter 
 IFS=' '
 # Reading mpstat_result as an array as tokens separated by IFS

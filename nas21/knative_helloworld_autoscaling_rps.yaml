@@ -14,6 +14,6 @@ spec:
     metadata:
       annotations:
         autoscaling.knative.dev/metric: "rps"
-        autoscaling.knative.dev/target: "1"
+        autoscaling.knative.dev/target: "40"
         autoscaling.knative.dev/minScale: "1"
         autoscaling.knative.dev/maxScale: "20"

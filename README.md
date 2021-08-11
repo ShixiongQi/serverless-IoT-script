@@ -194,7 +194,7 @@ kubectl delete -f ksvc_brokerchannel.yaml
 ### Create Horizontal Pod Autoscaler for Kubernetes service
 Now that the Kubernetes service is running, we will create the autoscaler using kubectl autoscale. The following command will create a Horizontal Pod Autoscaler that maintains between 1 and 10 replicas of the Pods controlled by the Kubernetes deployment we created in the first step of these instructions. Roughly speaking, HPA will increase and decrease the number of replicas (via the deployment) to maintain an average CPU utilization across all Pods of 50% (since each pod requests 200 milli-cores by kubectl run), this means average CPU usage of 100 milli-cores).
 ```
-kubectl autoscale deployment helloworld-go --cpu-percent=10 --min=1 --max=20
+kubectl autoscale deployment helloworld-go --cpu-percent=60 --min=1 --max=20
 ```
 We may check the current status of autoscaler by running:
 ```

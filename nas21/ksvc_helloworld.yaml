@@ -17,9 +17,9 @@ spec:
           image: gcr.io/knative-samples/helloworld-go
           resources:
             limits:
-              cpu: 500m
+              cpu: 700m
             requests:
-              cpu: 200m
+              cpu: 500m
 ---
 # Service that exposes helloworld-go app.
 # This will be the subscriber for the Trigger
