@@ -53,10 +53,8 @@ def generate(path, speed, addr, port):
         detal_t = float(int(u) - begin)/1000
         if detal_t < 86400:
             res.append(detal_t)
-    # for a in range(-10,10):
-    #     print(res[a])
-    # print(len(res))
-    # exit("stop")
+    for a in range(-10,10):
+        print(res[a])
     '''
     ptr1, ptr2 = 0, 0
     while ptr1 < len(s) and ptr2 < len(e):
@@ -75,10 +73,15 @@ def generate(path, speed, addr, port):
         res.append(0 if len(res) == 0 else e[ptr2] - res[-1])
         ptr2 += 1
     '''
-
+    sleep_t = []
+    for i in range(0, len(res)):
+        if i == 0:
+            sleep_t.append(res[i])
+        else:
+            sleep_t.append(res[i]-res[i-1])
     sensor, event_type = 'm', 'motion'
     print("length of res: {}".format(len(res)))
-    for r in res:
+    for r in sleep_t:
         # print(r)
         time.sleep(r/speed)
         # time.sleep(0.01)
