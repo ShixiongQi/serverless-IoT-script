@@ -148,9 +148,27 @@ RPS (12800 e/s):     12800      2560    1280    832     640
 kubectl apply -f knative_brokerchannel.yaml
 kubectl apply -f knative_helloworld_autoscaling_rps.yaml
 ```
-4. Start the experiment script on master node. Set the event generation rate at different levels (200, 400, 800, 1600, 3200, 6400, 12800 events/second)
+4. Start the experiment script on master node. 
+Set the event generation rate at different levels (200, 400, 800, 1600, 3200, 6400, 12800 events/second)
+Select the parameters in the table below to configure target event generation rate and **CPU measurement time on worker node**
+--------------------------- generator.py configuration table ---------------------------------
+          event generation rate:  200     400        800       1600     3200       6400     12800
+     amount of data used (days):  1       1           1          2        3          7        14
+initial event rate (no scaling):  .79     .79        .79       .862     .815       .625     .641
+                 scaling degree:  255     509         1019     1856     3926      10240     19968
+measurement time on worker node:  339     170         85        93       66         59        60
+
 ```
-python3 generator.py -a $MOSQUITTO_IP -s 256
+# EXAMPLE
+# If you want to configure the event generation rate as 800 events/second
+# You need to set scale degree ($SCALE_DEGREE) as 1019
+# and set amount of data used ($DAYS) as 1
+python3 generator.py -a $MOSQUITTO_IP -s $SCALE_DEGREE -d $DAYS
+
+# Accordingly, the CPU measuremnt time on worker ($TIME) needs to
+# be configure as 85
+# Remember the command below is running on master node. $TIME paramter will
+# be sent to worker
 python3 exp_robot.py --addr $WORKER_IP --port 65432 --time $TIME --node master
 ```
 5. The results should be returned to master node. Collect the results.
