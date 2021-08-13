@@ -127,6 +127,34 @@ kubectl delete -f knative_helloworld_autoscaling_rps.yaml
 kubectl delete -f knative_brokerchannel.yaml
 ```
 
+# Experiment steps in detail
+## Experiment group 1
+1. Start the experiment robot on the worker node
+```
+python3 exp_robot.py --addr $WORKER_IP --port 65432 --node worker
+```
+2. Configure the autoscaling parameters
+number of instances: 1          5       10      15      20
+RPS (200 e/s):       200        40      20      13      10
+RPS (400 e/s):       400        80      40      26      20
+RPS (800 e/s):       800        160     80      52      40
+RPS (1600 e/s):      1600       320     160     104     80
+RPS (3200 e/s):      3200       640     320     208     160
+RPS (6400 e/s):      6400       1280    640     416     320
+RPS (12800 e/s):     12800      2560    1280    832     640
+
+3. Deploy the service and brokerchannel (NOTE: if keep using the same service, no need to deploy brokerchannel again)
+```
+kubectl apply -f knative_brokerchannel.yaml
+kubectl apply -f knative_helloworld_autoscaling_rps.yaml
+```
+4. Start the experiment script on master node. Set the event generation rate as 200 e/s
+```
+python3 generator.py -a $MOSQUITTO_IP -s 256
+python3 exp_robot.py --addr $WORKER_IP --port 65432 --time $TIME --node master
+```
+5. The results should be returned to master node. Collect the results.
+
 [ksvc helloworld]: https://github.com/ShixiongQi/serverless-IoT-script/blob/master/nas21/knative_helloworld.yaml
 [knative helloworld rps]: https://github.com/ShixiongQi/serverless-IoT-script/blob/master/nas21/knative_helloworld_autoscaling_rps.yaml
 [cpu measure]: https://github.com/ShixiongQi/serverless-IoT-script/blob/master/nas21/experiments/cpu_measure.sh
