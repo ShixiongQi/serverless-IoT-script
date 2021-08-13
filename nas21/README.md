@@ -148,7 +148,7 @@ RPS (12800 e/s):     12800      2560    1280    832     640
 kubectl apply -f knative_brokerchannel.yaml
 kubectl apply -f knative_helloworld_autoscaling_rps.yaml
 ```
-4. Start the experiment script on master node. Set the event generation rate as 200 e/s
+4. Start the experiment script on master node. Set the event generation rate at different levels (200, 400, 800, 1600, 3200, 6400, 12800 events/second)
 ```
 python3 generator.py -a $MOSQUITTO_IP -s 256
 python3 exp_robot.py --addr $WORKER_IP --port 65432 --time $TIME --node master
