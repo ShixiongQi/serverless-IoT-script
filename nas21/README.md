@@ -134,6 +134,8 @@ kubectl delete -f knative_brokerchannel.yaml
 python3 exp_robot.py --addr $WORKER_IP --port 65432 --node worker
 ```
 2. Configure the autoscaling parameters
+
+
 | number of instances:  |     1    |    5    |   10   |   15   |  20   |
 |-----------------------|----------|---------|--------|--------|-------|
 |     RPS (200 e/s):    |   200    |    40   |   20   |   13   |   10  |
