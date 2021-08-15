@@ -6,3 +6,4 @@
 		* `-p`, Port number of the MQTT broker
 		* `-n`, Number of days(rooms)
 		* `-s`, Fast-forward. The default is 1(Normal speed), but the intervals between events is surprising long(More than 1000 seconds)
+		* `-h`, Send via HTTP instead of MQTT. If `INGRESS_HOST` and `INGRESS_PORT` are set, those values will be used instead of the address and the port for the broker
