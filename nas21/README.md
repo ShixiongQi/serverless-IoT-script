@@ -154,12 +154,14 @@ kubectl apply -f knative_helloworld_autoscaling_rps.yaml
 4. Start the experiment script on master node. 
 Set the event generation rate at different levels (200, 400, 800, 1600, 3200, 6400, 12800 events/second)
 Select the parameters in the table below to configure target event generation rate and **CPU measurement time on worker node**
---------------------------- generator.py configuration table ---------------------------------
-          event generation rate:  200     400        800       1600     3200       6400     12800
-     amount of data used (days):  1       1           1          2        3          7        14
-initial event rate (no scaling):  .79     .79        .79       .862     .815       .625     .641
-                 scaling degree:  255     509         1019     1856     3926      10240     19968
-measurement time on worker node:  339     170         85        93       66         59        60
+
+**generator.py configuration table**
+|          event generation rate: | 200  |   400    |    800    |   1600  |   3200  |     6400  |   12800 |
+|---------------------------------|------|----------|-----------|---------|---------|-----------|---------|
+|     amount of data used (days): | 1    |   1      |     1     |     2   |     3   |       7   |     14  |
+|initial event rate (no scaling): | .79  |   .79    |    .79    |   .862  |   .815  |     .625  |   .641  |
+|                 scaling degree: | 255  |   509    |    1019   |   1856  |   3926  |    10240  |   19968 |
+|measurement time on worker node: | 339  |   198    |    110    |   141   |    xx   |      xx   |     xx  |
 
 ```
 # EXAMPLE
