@@ -7,19 +7,19 @@ We use Ubuntu 18.04 with kernel version 4.15.0-88-generic. We use Kubernetes v1.
 **We have three different experiment configurations:** NOTE: config-2 is not available.
 1. The service instances are deployed as native Kubernetes services
 
-Generator.py --> MQTT broker (mosquitto) -> brokerchannel -> Kubernetes service
+Generator.py --> MQTT broker (mosquitto) -> Camel-K -> Kubernetes service
 
 2. The service instances are deployed as native Kubernetes serivces with eProxy equipped
 
-Generator.py --> MQTT broker (mosquitto) --> brokerchannel --> eProxy  --> Kubernetes service
+Generator.py --> MQTT broker (mosquitto) --> Camel-K --> eProxy  --> Kubernetes service
 
 3. The service instances are deployed as Knative services with queue proxy equipped
 
-Generator.py --> MQTT broker (mosquitto) --> brokerchannel --> Queue proxy  --> Knative service
+Generator.py --> MQTT broker (mosquitto) --> Camel-K --> Queue proxy  --> Knative service
 
-To deploy **CONFIG-1** and **CONFIG-2**, please use `ksvc_brokerchannel.yaml` and `ksvc_helloworld.yaml`
+To deploy **CONFIG-1** and **CONFIG-2**, please use `ksvc_Camel-K.yaml` and `ksvc_helloworld.yaml`
 
-To deploy **CONFIG-3**, please use `knative_brokerchannel.yaml` and `knative_helloworld.yaml`
+To deploy **CONFIG-3**, please use `knative_Camel-K.yaml` and `knative_helloworld_autoscaling_rps.yaml`
 
 ### Experiment plan
 The experiment plan is to generate CPU and RPS results as we currently did in the NAS paper.
@@ -77,7 +77,7 @@ Assuming the given event generation rate is 780 events/second. If we set the tar
 1. Deploy required brokerchannel and service **Master node**
 ```
 # Deploy brokerchannel for Kubernetes Service
-kubectl apply -f ksvc_brokerchannel.yaml
+kubectl apply -f ksvc-camel-K.yaml
 # Deploy the helloworld-go service (Kubernetes Service)
 kubectl apply -f ksvc_helloworld.yaml
 ```
@@ -97,8 +97,8 @@ cpu_measure.sh $TIME
 
 6. Cleaup if switching to other configs
 ```
-kubectl delete -f knative_helloworld.yaml
-kubectl delete -f knative_brokerchannel.yaml
+kubectl delete -f ksvc_helloworld.yaml
+kubectl delete -f ksvc-camel-K.yaml
 ```
 
 ### How to run the experiment for **Knative service - Config-3**
@@ -107,7 +107,7 @@ kubectl delete -f knative_brokerchannel.yaml
 1. Deploy required brokerchannel and service **Master node**
 ```
 # Deploy brokerchannel for Knative Service
-kubectl apply -f knative_brokerchannel.yaml
+kubectl apply -f knative-camel-K.yaml
 # Deploy the helloworld-go service (Knative Service)
 kubectl apply -f knative_helloworld_autoscaling_rps.yaml
 ```
@@ -124,7 +124,7 @@ cpu_measure.sh $TIME
 5. Cleaup if switching to other configs
 ```
 kubectl delete -f knative_helloworld_autoscaling_rps.yaml
-kubectl delete -f knative_brokerchannel.yaml
+kubectl delete -f knative-camel-K.yaml
 ```
 
 # Experiment steps in detail
@@ -148,7 +148,7 @@ python3 exp_robot.py --addr $WORKER_IP --port 65432 --node worker
 
 3. Deploy the service and brokerchannel (NOTE: if keep using the same service, no need to deploy brokerchannel again)
 ```
-kubectl apply -f knative_brokerchannel.yaml
+kubectl apply -f knative-camel-K.yaml
 kubectl apply -f knative_helloworld_autoscaling_rps.yaml
 ```
 4. Start the experiment script on master node. 

@@ -14,6 +14,7 @@ sudo chown -R $(id -u):$(id -g) <mount point(to be used as extra storage)>
 cd <mount point>
 git clone https://github.com/ShixiongQi/serverless-IoT-script.git
 cd <mount point>/serverless-IoT-script
+git checkout camel-k
 ```
 Then run `export MYMOUNT=<mount point>` with the added storage mount point name
 
@@ -23,6 +24,7 @@ sudo chown -R $(id -u):$(id -g) /mydata
 cd /mydata
 git clone https://github.com/ShixiongQi/serverless-IoT-script.git
 cd /mydata/serverless-IoT-script/environment_setup/
+git checkout camel-k
 export MYMOUNT=/mydata
 ```
 
@@ -72,47 +74,13 @@ kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/e
 kubectl get pods --namespace knative-eventing
 ```
 
-## V. Deploy broker layer (brokerchannel/adapter and mosquitto broker)
-### Quick installation (Recommended)
-```
-./400-brokerlayer_install.sh
-```
-### Manual installation (User only)
-If you are a user only, please follow the steps below to install broker layer manually.
-```
-git submodule sync
-git submodule update --init
-
-# deploy brokerchannel service
-cd ../brokerchannel/
-kubectl apply -f config/
-
-# Deploy the mosquitto broker
-cd ../
-kubectl apply -f ./nas21/mosquitto.yaml
-```
-### Manual installation (for developer)
-If you changed the brokerchannel implementation and want to rebuild it, please make sure you can install `ko` and properly configure it, i.e., KO_DOCKER_REPO
-```
-git submodule sync
-git submodule update --init
-
-# Install ko
-cd ~/ && wget https://github.com/google/ko/releases/download/v0.8.3/ko_0.8.3_Linux_x86_64.tar.gz
-tar -zxvf ko_0.8.3_Linux_x86_64.tar.gz
-sudo install ko /usr/bin/
-
-# ASSUME YOU WILL DO SOME CHANGES ON THE BROKERCHANNEL
-# ...
-
-# deploy brokerchannel service
-cd ../brokerchannel/
-ko apply -f config/
-
-# Deploy the mosquitto broker
-cd ../
-kubectl apply -f ./nas21/mosquitto.yaml
-```
+## V. Deploy broker layer (camel-k adapter and mosquitto broker)
+**To deploy broker layer, please follow step 1 to step 4 carefully!**
+1. Run `./400-brokerlayer_install.sh`
+**ATTENTION: please login to your docker account first and then install kamel into Kubernetes**
+2. run `sudo docker login`, you will need to enter your docker username and password
+3. run `sudo kamel install --registry docker.io --organization your-user-id-or-org --registry-auth-username your-user-id --registry-auth-password your-password`, remember to modify `your-user-id-or-org`, `your-user-id`, and `your-password` accordingly.
+4. run `kubectl describe IntegrationPlatform camel-k` to check whether your docker account has been registered into the camel-k, if not, **YOU WILL FAIL IN STEP VII**.
 
 ## VI. Setup event generator
 ### Quick setup (Recommended)
@@ -135,27 +103,19 @@ pip3 install paho-mqtt
 ```
 
 ## VII. Deploy IoT services (manually)
-Go to `nas21` directory before moving forward
-### Deploy the brokerchannel (MQTT-to-HTTP Adapter)
-```
-# NOTE: Before deploying, configure the IP address of mosquitto broker
-MOSQUITTO_IP=$(kubectl get pods -l app=mosquitto -o jsonpath='{.items[0].status.podIP}')
-sed -i 's#10.244.1.61#'$MOSQUITTO_IP'#g' ksvc_brokerchannel.yaml
-sed -i 's#10.244.1.61#'$MOSQUITTO_IP'#g' knative_brokerchannel.yaml
-```
-
+**Go to `nas21` directory before moving forward**
 You can choose to run either Knative service or Kubernetes service for a simple helloworld application. Please run them seperately, e.g., 1st time runs Knative service, 2nd time runs Kubernetes service. Before switching between different services, please clean up the old deployment first.
 ### **Knative service**
 ```
 ## OPTION-1
-# Deploy brokerchannel for Knative Service
-kubectl apply -f knative_brokerchannel.yaml
+# Deploy camel-k MQTT-to-HTTP Adapter for Knative Service
+kubectl apply -f knative-camel-K.yaml
 # Deploy the helloworld-go service (Knative Service)
 kubectl apply -f knative_helloworld.yaml
 
 ## If you want to cleanup the Knative service
 kubectl delete -f knative_helloworld.yaml
-kubectl delete -f knative_brokerchannel.yaml
+kubectl delete -f knative-camel-K.yaml
 ```
 ### Create RPS Pod Autoscaler for Knative service
 To create rps autoscaler for Knative serivce, please use `knative_helloworld_autoscaling_rps.yaml`.
@@ -182,14 +142,14 @@ The following parameters in `knative_helloworld_autoscaling_cpu.yaml` can be con
 ### **Kubernetes service**
 ```
 ## OPTION-2
-# Deploy brokerchannel for Kubernetes Service
-kubectl apply -f ksvc_brokerchannel.yaml
+# Deploy camel-k MQTT-to-HTTP Adapter for Kubernetes Service
+kubectl apply -f ksvc-camel-K.yaml
 # Deploy the helloworld-go service (Kubernetes Service)
 kubectl apply -f ksvc_helloworld.yaml
 
 ## If you want to cleanup the Kubernetes service
 kubectl delete -f ksvc_helloworld.yaml
-kubectl delete -f ksvc_brokerchannel.yaml
+kubectl delete -f ksvc-camel-K.yaml
 ```
 ### Create Horizontal Pod Autoscaler for Kubernetes service
 Now that the Kubernetes service is running, we will create the autoscaler using kubectl autoscale. The following command will create a Horizontal Pod Autoscaler that maintains between 1 and 10 replicas of the Pods controlled by the Kubernetes deployment we created in the first step of these instructions. Roughly speaking, HPA will increase and decrease the number of replicas (via the deployment) to maintain an average CPU utilization across all Pods of 50% (since each pod requests 200 milli-cores by kubectl run), this means average CPU usage of 100 milli-cores).

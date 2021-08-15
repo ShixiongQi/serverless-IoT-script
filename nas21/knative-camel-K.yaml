@@ -1,0 +1,18 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: KameletBinding
+metadata:
+  name: mqtt-to-http-kn
+spec:
+  source:
+    ref:
+      kind: Kamelet
+      apiVersion: camel.apache.org/v1alpha1
+      name: mqtt-source
+    properties:
+      brokerUrl: "tcp://mosquitto:1883"
+      topic: "motion"
+  sink:
+    ref:
+      kind: Service
+      apiVersion: serving.knative.dev/v1
+      name: helloworld-go

@@ -1,0 +1,19 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: KameletBinding
+metadata:
+  name: mqtt-to-http-ksvc
+spec:
+  source:
+    ref:
+      kind: Kamelet
+      apiVersion: camel.apache.org/v1alpha1
+      name: mqtt-source
+    properties:
+      brokerUrl: "tcp://mosquitto:1883"
+      # brokerUrl: "tcp://10.244.1.61:1883"
+      topic: "motion"
+  sink:
+    ref:
+      kind: Service
+      apiVersion: v1
+      name: helloworld-go
