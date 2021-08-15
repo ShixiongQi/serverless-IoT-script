@@ -58,10 +58,11 @@ def generate(path, speed, addr, port, day):
     print("Event rate (after scaling): {}".format( len(res)/(86400 * int(day)) * speed ))
     print("Time to complete all the events: {} seconds".format((86400 * int(day)) / speed))
     print("\n* * * * * * * EVENT GENERATION BEGIN, remember starting your experiment robot (master)!! * * * * * *")
-
+    # start_ticks = time.time()
     for r in sleep_t:
         # print(r)
         time.sleep(r/speed)
+        # time.sleep(0.05)
         attributes = {
                 'type': event_type,
                 'source': 'com.example.sensor/'+sensor,
@@ -69,7 +70,10 @@ def generate(path, speed, addr, port, day):
         user_property = properties.Properties(properties.PacketTypes.PUBLISH)
         user_property.UserProperty = list(attributes.items())
         mqtt_client.publish(event_type, '123', properties=user_property)
-    exit("All the events in {} day(s) have been sent out".format(day))
+    # end_ticks = time.time()
+    print("All the events in {} day(s) have been sent out".format(day))
+    # print(end_ticks - start_ticks)
+    
 
 def main():
     parser = argparse.ArgumentParser()
