@@ -74,16 +74,16 @@ Assuming the given event generation rate is 780 events/second. If we set the tar
 ### How to run the experiment for **Kubernetes servivce - Config-1**
 *NOTE 1: make sure you finish step I ~ VI to get the environment ready*
 *NOTE 2: make sure you modify the MOSQUITTO IP before deploying the brokerchannel (MQTT-to-HTTP Adapter)*
-1. Deploy required brokerchannel and service **Master node**
+1. Deploy required adapter and service **Master node**
 ```
-# Deploy brokerchannel for Kubernetes Service
+# Deploy camel-k MQTT-to-HTTP Adapter for Kubernetes Service
 kubectl apply -f ksvc-camel-K.yaml
 # Deploy the helloworld-go service (Kubernetes Service)
 kubectl apply -f ksvc_helloworld.yaml
 ```
 2. Enable autoscaling policy **Master node**
 ```
-kubectl autoscale deployment helloworld-go --cpu-percent=60 --min=1 --max=20
+kubectl autoscale deployment helloworld-go --cpu-percent=70 --min=1 --max=20
 ```
 3. Generating events **Master node**
 ```
@@ -104,12 +104,14 @@ kubectl delete -f ksvc-camel-K.yaml
 ### How to run the experiment for **Knative service - Config-3**
 *NOTE 1: make sure you finish step I ~ VI to get the environment ready*
 *NOTE 2: make sure you modify the MOSQUITTO IP before deploying the brokerchannel (MQTT-to-HTTP Adapter)*
-1. Deploy required brokerchannel and service **Master node**
+1. Deploy required adapter and service **Master node**
 ```
-# Deploy brokerchannel for Knative Service
-kubectl apply -f knative-camel-K.yaml
 # Deploy the helloworld-go service (Knative Service)
-kubectl apply -f knative_helloworld_autoscaling_rps.yaml
+kubectl apply -f knative-helloworld_rps.yaml
+# Deploy in memory channel instance
+kubectl apply -f kn-in-memory-ch.yaml
+# Deploy camel-k MQTT-to-HTTP Adapter for Knative Service
+kubectl apply -f knative-camel-K.yaml
 ```
 2. Generating events **Master node**
 ```
@@ -123,7 +125,8 @@ cpu_measure.sh $TIME
 
 5. Cleaup if switching to other configs
 ```
-kubectl delete -f knative_helloworld_autoscaling_rps.yaml
+kubectl delete -f kn-in-memory-ch.yaml
+kubectl delete -f knative-helloworld_rps.yaml
 kubectl delete -f knative-camel-K.yaml
 ```
 
@@ -146,10 +149,11 @@ python3 exp_robot.py --addr $WORKER_IP --port 65432 --node worker
 |     RPS (6400 e/s):   |   6400   |    1280 |   640  |   416  |   320 |
 |     RPS (12800 e/s):  |   12800  |    2560 |   1280 |   832  |   640 |
 
-3. Deploy the service and brokerchannel (NOTE: if keep using the same service, no need to deploy brokerchannel again)
+3. Deploy the service and adapter (NOTE: if keep using the same service, no need to deploy adapter again)
 ```
+kubectl apply -f kn-in-memory-ch.yaml
+kubectl apply -f knative-helloworld_rps.yaml
 kubectl apply -f knative-camel-K.yaml
-kubectl apply -f knative_helloworld_autoscaling_rps.yaml
 ```
 4. Start the experiment script on master node. 
 Set the event generation rate at different levels (200, 400, 800, 1600, 3200, 6400, 12800 events/second)

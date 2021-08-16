@@ -63,6 +63,11 @@ kubectl get pods --namespace knative-serving
 ```
 kubectl apply -f https://github.com/knative/serving/releases/download/v0.22.0/serving-default-domain.yaml
 ```
+5. Install metrics service for HPA
+```
+kubectl apply -f $mount_path/serverless-IoT-script/nas21/metrics-server.yaml
+kubectl apply -f https://github.com/knative/serving/releases/download/v0.22.0/serving-hpa.yaml
+```
 #### Eventing installation
 1. Install the required CRDs and the core components of Eventing:
 ```
@@ -77,7 +82,8 @@ kubectl get pods --namespace knative-eventing
 ## V. Deploy broker layer (camel-k adapter and mosquitto broker)
 **To deploy broker layer, please follow step 1 to step 4 carefully!**
 1. Run `./400-brokerlayer_install.sh`
-**ATTENTION: please login to your docker account first and then install kamel into Kubernetes**
+
+**ATTENTION: please complete STEP-2 and STEP-3 before moving on!!**
 2. run `sudo docker login`, you will need to enter your docker username and password
 3. run `sudo kamel install --registry docker.io --organization your-user-id-or-org --registry-auth-username your-user-id --registry-auth-password your-password`, remember to modify `your-user-id-or-org`, `your-user-id`, and `your-password` accordingly.
 4. run `kubectl describe IntegrationPlatform camel-k` to check whether your docker account has been registered into the camel-k, if not, **YOU WILL FAIL IN STEP VII**.
@@ -104,12 +110,13 @@ pip3 install paho-mqtt
 
 ## VII. Deploy IoT services (manually)
 **Go to `nas21` directory before moving forward**
+
 You can choose to run either Knative service or Kubernetes service for a simple helloworld application. Please run them seperately, e.g., 1st time runs Knative service, 2nd time runs Kubernetes service. Before switching between different services, please clean up the old deployment first.
 ### **Knative service**
 ```
 ## OPTION-1
 # Deploy the helloworld-go service (Knative Service)
-kubectl apply -f knative_helloworld.yaml
+kubectl apply -f knative-helloworld_rps.yaml
 # Deploy in memory channel instance
 kubectl apply -f kn-in-memory-ch.yaml
 # Deploy camel-k MQTT-to-HTTP Adapter for Knative Service
@@ -118,12 +125,12 @@ kubectl apply -f knative-camel-K.yaml
 
 ## If you want to cleanup the Knative service
 kubectl delete -f kn-in-memory-ch.yaml
-kubectl delete -f knative_helloworld.yaml
+kubectl delete -f knative-helloworld_rps.yaml
 kubectl delete -f knative-camel-K.yaml
 ```
 ### Create RPS Pod Autoscaler for Knative service
-To create rps autoscaler for Knative serivce, please use `knative_helloworld_autoscaling_rps.yaml`.
-The following parameters in `knative_helloworld_autoscaling_rps.yaml` can be configured
+To create rps autoscaler for Knative serivce, please use `knative-helloworld_rps.yaml`.
+The following parameters in `knative-helloworld_rps.yaml` can be configured
 ```
     metadata:
       annotations:
@@ -133,8 +140,8 @@ The following parameters in `knative_helloworld_autoscaling_rps.yaml` can be con
         autoscaling.knative.dev/maxScale: "20"
 ```
 ### Create Horizontal Pod Autoscaler (CPU based) for Knative service
-To create horizontal autoscaler for Knative serivce, please use `knative_helloworld_autoscaling_cpu.yaml`.
-The following parameters in `knative_helloworld_autoscaling_cpu.yaml` can be configured
+To create horizontal autoscaler for Knative serivce, please use `knative-helloworld_cpu.yaml`.
+The following parameters in `knative-helloworld_cpu.yaml` can be configured
 ```
     metadata:
       annotations:
