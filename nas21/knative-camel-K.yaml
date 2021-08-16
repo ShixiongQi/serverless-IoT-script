@@ -13,6 +13,10 @@ spec:
       topic: "motion"
   sink:
     ref:
-      kind: Service
-      apiVersion: serving.knative.dev/v1
-      name: helloworld-go
+      kind: InMemoryChannel
+      apiVersion: messaging.knative.dev/v1
+      name: helloworld-go-ch
+    # ref:
+    #   kind: Service
+    #   apiVersion: serving.knative.dev/v1
+    #   name: helloworld-go

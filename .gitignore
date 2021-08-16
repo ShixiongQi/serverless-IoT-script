@@ -1,3 +1,5 @@
 .DS_Store
 generator/data
 motion_gen/merl
+environment_setup/download
+environment_setup/camel

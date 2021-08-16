@@ -108,12 +108,16 @@ You can choose to run either Knative service or Kubernetes service for a simple 
 ### **Knative service**
 ```
 ## OPTION-1
-# Deploy camel-k MQTT-to-HTTP Adapter for Knative Service
-kubectl apply -f knative-camel-K.yaml
 # Deploy the helloworld-go service (Knative Service)
 kubectl apply -f knative_helloworld.yaml
+# Deploy in memory channel instance
+kubectl apply -f kn-in-memory-ch.yaml
+# Deploy camel-k MQTT-to-HTTP Adapter for Knative Service
+kubectl apply -f knative-camel-K.yaml
+
 
 ## If you want to cleanup the Knative service
+kubectl delete -f kn-in-memory-ch.yaml
 kubectl delete -f knative_helloworld.yaml
 kubectl delete -f knative-camel-K.yaml
 ```

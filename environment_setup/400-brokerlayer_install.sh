@@ -8,13 +8,8 @@ then
 	exit 1
 fi
 
-# cd $mount_path/serverless-IoT-script/
-# git submodule sync
-# git submodule update --init
-
-# cd ./brokerchannel/
-# # deploy brokerchannel service
-# kubectl apply -f ./config/
+echo 'Install in memory channel controller'
+kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/in-memory-channel.yaml
 
 # Deploy the mosquitto broker
 kubectl apply -f $mount_path/serverless-IoT-script/nas21/mosquitto.yaml
