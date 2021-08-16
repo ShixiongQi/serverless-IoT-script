@@ -61,12 +61,12 @@ def generate(path, speed, addr, port, day, http):
     print("Time to complete all the events: {} seconds".format((86400 * int(day)) / speed))
     print("\n* * * * * * * EVENT GENERATION BEGIN, remember starting your experiment robot (master)!! * * * * * *")
 
-    def post(event,data):
+    def post(addr, port, event):
         headers, body = to_structured(event, data_marshaller = str)
         addr = os.getenv('INGRESS_HOST', addr)
         port = os.getenv('INGRESS_PORT', port)
-        headers['Host'] = ''
-        r = requests.post('{}:{}'.format(addr, port), data=body, headers=headers)
+        headers['Host'] = 'helloworld-go.default.example.com'
+        r = requests.post('http://{}:{}'.format(addr, port), data=body, headers=headers)
 
     for r in sleep_t:
         # print(r)
@@ -76,8 +76,8 @@ def generate(path, speed, addr, port, day, http):
                 'source': 'com.example.sensor/'+sensor,
         }
         if http:
-            headers, body = CloudEvent(attributes, '123')
-            th = threading.Thread(target=post, args=(headers,data,))
+            event = CloudEvent(attributes, '123')
+            th = threading.Thread(target=post, args=(addr, port, event,))
             th.daemon = True
             th.start()
         else:
