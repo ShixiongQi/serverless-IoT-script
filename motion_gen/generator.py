@@ -93,7 +93,7 @@ def main():
     parser.add_argument('-n', '--number', action='store', type=int)
     parser.add_argument('-s', '--speed', action='store', type=int, default=1)
     parser.add_argument('-d', '--day', action='store', type=int, default=1)
-    parser.add_argument('-h', '--http', action='store_true', default=False)
+    parser.add_argument('--http', action='store_true', default=False)
     args = parser.parse_args()
 
     if args.number:
