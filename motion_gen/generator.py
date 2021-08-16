@@ -91,7 +91,7 @@ def main():
     parser.add_argument('-a', '--addr', action='store', type=str, default='10.244.1.61')
     parser.add_argument('-p', '--port', action='store', type=int, default=1883)
     parser.add_argument('-n', '--number', action='store', type=int)
-    parser.add_argument('-s', '--speed', action='store', type=int, default=1)
+    parser.add_argument('-s', '--speed', action='store', type=int, default=1000)
     parser.add_argument('-d', '--day', action='store', type=int, default=1)
     parser.add_argument('--http', action='store_true', default=False)
     args = parser.parse_args()
