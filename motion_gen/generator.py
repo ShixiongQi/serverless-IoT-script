@@ -22,7 +22,10 @@ def generate(path, speed, addr, port, day, http):
             print("Reconnected to MQTT Broker")
             mqttc.reconnect()
 
-    if not http:
+    if http:
+        print('HTTP mode')
+    else:
+        print('MQTT mode')
         mqtt_client = client.Client(protocol=client.MQTTv5)
         # mqtt_client = client.Client()
         mqtt_client.on_connect = on_connect
@@ -68,22 +71,24 @@ def generate(path, speed, addr, port, day, http):
         headers['Host'] = 'helloworld-go.default.example.com'
         r = requests.post('http://{}:{}'.format(addr, port), data=body, headers=headers)
 
+    seq_num = 0
     for r in sleep_t:
         # print(r)
-        time.sleep(r/speed)
+        time.sleep(0.05)
         attributes = {
                 'type': event_type,
                 'source': 'com.example.sensor/'+sensor,
         }
         if http:
-            event = CloudEvent(attributes, '123')
+            seq_num += 1
+            event = CloudEvent(attributes, str(seq_num))
             th = threading.Thread(target=post, args=(addr, port, event,))
             th.daemon = True
             th.start()
         else:
             user_property = properties.Properties(properties.PacketTypes.PUBLISH)
             user_property.UserProperty = list(attributes.items())
-            mqtt_client.publish(event_type, '123', properties=user_property)
+            mqtt_client.publish(event_type, str(seq_num), properties=user_property)
     exit("All the events in {} day(s) have been sent out".format(day))
 
 def main():
