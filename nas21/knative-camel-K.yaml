@@ -12,10 +12,7 @@ spec:
       brokerUrl: "tcp://mosquitto:1883"
       topic: "motion"
   sink:
-    ref:
-      kind: InMemoryChannel
-      apiVersion: messaging.knative.dev/v1
-      name: helloworld-go-ch
+      uri: http://10.109.184.34:80
     # ref:
     #   kind: Service
     #   apiVersion: serving.knative.dev/v1

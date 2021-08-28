@@ -7,7 +7,7 @@ spec:
   template:
     spec:
       containers:
-        - image: gcr.io/knative-samples/helloworld-go # The URL to the image of the app
+        - image: docker.io/shixiongqi/helloworld-go # The URL to the image of the app
           env:
             - name: TARGET # The environment variable printed out by the sample app
               value: "Go Sample v1"
@@ -15,5 +15,5 @@ spec:
       annotations:
         autoscaling.knative.dev/metric: "rps"
         autoscaling.knative.dev/target: "200"
-        autoscaling.knative.dev/minScale: "1"
-        autoscaling.knative.dev/maxScale: "1"
+        autoscaling.knative.dev/minScale: "4"
+        autoscaling.knative.dev/maxScale: "4"
