@@ -14,7 +14,7 @@ sudo chown -R $(id -u):$(id -g) <mount point(to be used as extra storage)>
 cd <mount point>
 git clone https://github.com/ShixiongQi/serverless-IoT-script.git
 cd <mount point>/serverless-IoT-script
-git checkout camel-k
+git checkout nas21-camera-ready
 ```
 Then run `export MYMOUNT=<mount point>` with the added storage mount point name
 
@@ -24,7 +24,7 @@ sudo chown -R $(id -u):$(id -g) /mydata
 cd /mydata
 git clone https://github.com/ShixiongQi/serverless-IoT-script.git
 cd /mydata/serverless-IoT-script/environment_setup/
-git checkout camel-k
+git checkout nas21-camera-ready
 export MYMOUNT=/mydata
 ```
 
