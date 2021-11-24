@@ -16,8 +16,8 @@ kubectl apply -f https://github.com/knative/net-istio/releases/download/v0.22.0/
 kubectl apply -f https://github.com/knative/net-istio/releases/download/v0.22.0/net-istio.yaml # Install the Knative Istio controller
 kubectl --namespace istio-system get service istio-ingressgateway # Fetch the External IP or CNAME
 
-echo 'Configure DNS to prevent the need to run curl commands with a host header'
-kubectl apply -f https://github.com/knative/serving/releases/download/v0.22.0/serving-default-domain.yaml
+# echo 'Configure DNS to prevent the need to run curl commands with a host header'
+# kubectl apply -f https://github.com/knative/serving/releases/download/v0.22.0/serving-default-domain.yaml
 
 echo 'Install the required CRDs and the core components of Eventing'
 kubectl apply -f https://github.com/knative/eventing/releases/download/v0.22.0/eventing-crds.yaml
